@@ -1,0 +1,5 @@
+semistability
+characteristic: 0
+variables: "x", "y", "z", "w"
+relations: z^3+x*w^2+w^3, x^3+y^3+z*w^2
+matrix: {{-y^3-z*w^2, y*w^2, x*z^2}}

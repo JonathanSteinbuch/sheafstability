@@ -1,0 +1,5 @@
+semistability
+characteristic: 0
+variables: "x", "y", "z"
+relations: z^5+x^5+y^5
+matrix: {{x^4+y^2z^2,y^4,z^4,x^7}}
