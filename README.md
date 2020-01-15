@@ -5,9 +5,15 @@ This program computes whether a given sheaf is semistable following the algorith
 # Usage
 To compile the program you need to have the GNU Multiprecision Library (https://gmplib.org/) and the Boost Program Options (https://www.boost.org/) installed.
 
-The basic usage is as follows:
+To compile just run the command 
 ```
-stability --input-file="input.txt" --output-file="output.txt" 
+make
+```
+in the main directory.
+
+The basic usage is as follows. In the directory with the executable run:
+```
+./stability --input-file="input.txt" --output-file="output.txt" 
 ```
 There are several command line options. In most cases going with the default should be fine.
 
