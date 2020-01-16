@@ -1188,12 +1188,7 @@ int main(int ac, char* av[])
 		notify(vm);
 
 		ifstream ifs(opt.config_file.c_str());
-		if (!ifs)
-		{
-			cout << "can not open config file: " << opt.config_file << "\n";
-			return 0;
-		}
-		else
+		if (ifs)
 		{
 			store(parse_config_file(ifs, config_file_options), vm);
 			notify(vm);
