@@ -1,6 +1,6 @@
 # Sheaf stability
 
-This program computes whether a given sheaf is semistable following the algorithm laid out in the paper (Computing stability of sheafs - Holger Brenner and Jonathan Steinbuch (TODO link).
+This program computes whether a given sheaf is semistable following the algorithm laid out in the paper (Computing stability of sheaves - Holger Brenner and Jonathan Steinbuch (TODO link).
 
 # Usage
 To compile the program you need to have the GNU Multiprecision Library (https://gmplib.org/) and the Boost Program Options (https://www.boost.org/) installed.
