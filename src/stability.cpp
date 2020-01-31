@@ -80,13 +80,12 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 {
 	bool result = false;
 
-	Ring.setOptions(opt);
+	Ring.setOptions(opt); //make sure the ring has the correct program options
 
-	assert(M.getRows() == 1);
+	assert(M.getRows() == 1); //For now, we can only decide semistability of syzygy sheafs
 
-	if (opt.verbosity >= 1)
+	if (opt.verbosity >= 1) //Write out some information about what we are going to do
 	{
-
 		cout << "We compute if the Syzygy sheaf given by M is semistable over the projective variety X, where:" << endl;
 		string field;
 		if (characteristic == 0)
@@ -119,9 +118,9 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 	}
 
 	//Check if we have a curve.
-	PolyRing<mpq_class> kX(1,{ "n" }, degrevlex);
+	PolyRing<mpq_class> kX(1,{ "n" }, degrevlex); //Polynomial Ring in One variable for the Hilbert Polynomial
 	kX.setOptions(opt);
-	Poly<mpq_class> hP(&kX);
+	Poly<mpq_class> hP(&kX); //Container for the Hilbert Polynomial
 	Ring.getBaseRing()->quotientHilbertPoly(hP, Ring.getGB());
 
 	if (opt.verbosity >= 1)
@@ -147,12 +146,12 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 	}
 
 	//Compute degree and genus of the curve
-	unsigned int reldeg = hP.leadingCoefficient().get_num().get_ui();
-	assert(hP.leadingCoefficient().get_den() == 1);
+	unsigned int reldeg = hP.leadingCoefficient().get_num().get_ui(); //The degree is the leading coefficient of the Hilbert Polynomial
+	assert(hP.leadingCoefficient().get_den() == 1); //If the leading coefficient is not an integer, something went wrong
 	int genus = 1;
-	if (hP.supportSize() > 1)
+	if (hP.supportSize() > 1) //This check is needed because if hP has only one nonzero monomial the trailing monomial wouldn't capture the constant coefficient
 	{
-		genus = (1 - hP.trailingCoefficient().get_num().get_si());
+		genus = (1 - hP.trailingCoefficient().get_num().get_si()); //Genus g = 1 - hP(0).
 	}
 
 	if (opt.verbosity >= 1)
@@ -161,22 +160,22 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 	}
 
 	//Compute the image of M and its degree
-	auto Mgens = M.getRowEntries(0);
+	auto Mgens = M.getRowEntries(0); //get entries of M as a family of elements of the Ring
 	for (auto & p : Mgens)
 	{
-		p.changeRing(Ring.getBaseRing());
+		p.changeRing(Ring.getBaseRing()); //Replace the ring elements by the polynomials representing them
 	}
-	Mgens.insert(Mgens.end(), Ring.getGB().begin(), Ring.getGB().end());
-	Ring.getBaseRing()->computeGroebnerBasis(Mgens);
-	Poly<mpq_class> MhP(&kX);
+	Mgens.insert(Mgens.end(), Ring.getGB().begin(), Ring.getGB().end()); //Add the elements of the ideal to the entries
+	Ring.getBaseRing()->computeGroebnerBasis(Mgens); //Compute the Gröbner Basis of the resulting family
+	Poly<mpq_class> MhP(&kX); //Container for the Hilbert Polynomial of BaseRing/Mgens
 	Ring.getBaseRing()->quotientHilbertPoly(MhP, Mgens);
 	if (opt.verbosity >= 1)
 	{
 		cout << "The Hilbert polynomial of M is P(n)=" << MhP << endl;
 		cout << endl;
 	}
-	assert(MhP.degree() == 0);
-	int idealdegree = -MhP.leadingCoefficient().get_num().get_si();
+	assert(MhP.degree() == 0); //The Hilbert Polynomial should be a constant
+	int idealdegree = -MhP.leadingCoefficient().get_num().get_si(); //The degree of the image is d=-MhP.
 
 	//Compute rank degree and slope of the kernel of M
 	int rank = M.getCols() - M.getRows();
@@ -200,6 +199,7 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 	for (int extPower = 1; extPower <= maxExt; extPower++)
 	{
 		auto extMatrix = sparseM.extMatrix(extPower);
+		double extSlope = slope * extPower;
 
 		if (opt.verbosity >= 1)
 		{
@@ -207,8 +207,8 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 			cout << extMatrix.getRows() << "x" << extMatrix.getCols() << "-Matrix" << endl;
 		}
 
-		int gc;
-		int n;
+		int gc; //temporary variable for the gcd
+		int n; //The n from the theorem
 		if(opt.exteriorPowers)
 		{
 			gc = __gcd(rank, -extPower*degree);
@@ -218,8 +218,7 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 			n = (rank - 1)*rank/gc;
 		}
 
-		unsigned int actualThreshold = threshold * n + 1;
-		double extSlope = slope * extPower;
+		unsigned int actualThreshold = threshold * n + 1; //The power q from the Theorem
 
 		if (opt.verbosity >= 1)
 		{
@@ -235,16 +234,16 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 
 		SparsePolyMatrix<Scalar> sMatrix;
 
+		//Try symmetric powers of M until we get to q, to maybe get lucky and find a destabilizing sheaf earlier
 		while (currmin < currmax)
 		{
-
 			if (characteristic == 0)
 			{
 				if (opt.verbosity >= 1)
 				{
 					cout << "Symmetric Power: " << sPower << endl;
 				}
-				sMatrix = extMatrix.symMatrix(sPower);
+				sMatrix = extMatrix.symMatrix(sPower); //Compute the Matrix to the Symmetric Power
 			}
 			else
 			{
@@ -252,9 +251,10 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 				{
 					cout << "Frobenius Power: " << sPower << endl;
 				}
+				//Compute the Matrix to the Frobenius Power
 				if(sPower > oldsPower)
 				{
-					sMatrix = sMatrix.powerMatrix(sPower/oldsPower);
+					sMatrix = sMatrix.powerMatrix(sPower/oldsPower); //Compute Incrementally. It's less work than to compute it from the original matrix every time
 				} else {
 					sMatrix = extMatrix.powerMatrix(sPower);
 				}
@@ -275,7 +275,7 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 			}
 
 			double sSlope = extSlope * sPower;
-			int twist = ((int) ceil(-sSlope/reldeg) - 1);
+			int twist = ((int) ceil(-sSlope/reldeg) - 1); //The k from the theorem
 
 			if (opt.verbosity >= 1)
 			{
@@ -285,9 +285,9 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 
 			clock_t t = clock();
 
-			SparsePolyMatrix<Scalar> ker;
+			SparsePolyMatrix<Scalar> ker; //Container for the kernel of the power Matrix
 
-			int kernelRank = intest(sMatrix, twist, ker, opt);
+			int kernelRank = intest(sMatrix, twist, ker, opt); //Compute the rank of the kernel of the power matrix
 
 			if (opt.verbosity >= 1)
 			{
@@ -295,12 +295,13 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 				cout << "Clock: " << t << "ticks or " << t / CLOCKS_PER_SEC << "s" << endl;
 				cout << "Rank at degree of Interest: " << kernelRank << endl;
 			}
-			if (kernelRank > 0)
+			if (kernelRank > 0) //We found a destabilizing section
 			{
 				if (opt.verbosity >= 1)
 				{
 					cout << "Not Semistable!" << endl;
 				}
+				//Write the power and twist where we found the destabilizing section into the output file
 				output << 1 << endl;
 				output << "{" << "ExteriorPower => " << extPower << ", SymmetricPower => " << sPower << ", Twist => " << twist << "}" << endl;
 				if(opt.verbosity >= 2)
@@ -308,7 +309,7 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 					cout << "Kernel:" << endl;
 					cout << ker << endl << endl;
 				}
-				if(opt.verbosity >= 3)
+				if(opt.verbosity >= 3) //If the verbosity is high even write out the section itself
 				{
 					if(opt.outputM2)
 					{
@@ -321,7 +322,7 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 				result = false;
 				if(characteristic == 0)
 				{
-					currmax = sPower - 1;
+					currmax = sPower - 1; //Adjust the power for which we may maybe not find destabilizing sections
 				} else {
 					currmax = sPower / characteristic;
 				}

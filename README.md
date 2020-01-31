@@ -1,8 +1,14 @@
 # Sheaf stability
 
-This program computes whether a given sheaf is semistable following the algorithm laid out in the paper (Computing stability of sheaves - Holger Brenner and Jonathan Steinbuch (TODO link).
+This program computes whether a given sheaf is semistable following the algorithm laid out in the paper (Computing stability of sheafs - Holger Brenner and Jonathan Steinbuch (TODO link).
 
 # Usage
+Get the source code by cloning this git repository with the commands
+```
+git clone https://github.com/JonathanSteinbuch/sheafstability.git
+cd sheafstability
+```
+
 To compile the program you need to have the GNU Multiprecision Library (https://gmplib.org/) and the Boost Program Options (https://www.boost.org/) installed.
 
 To compile just run the command 
@@ -11,7 +17,7 @@ make
 ```
 in the main directory.
 
-The basic usage is as follows. In the directory with the executable run:
+The basic usage is as follows. In the main directory run:
 ```
 ./stability --input-file="input.txt" --output-file="output.txt" 
 ```
