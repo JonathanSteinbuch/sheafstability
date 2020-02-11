@@ -604,7 +604,6 @@ void PolyRing<_Scalar>::quotientHilbertPoly(Poly<mpq_class> &hilbertPolynomial,c
 
 	monpoly(0, mons->vars, hilbertPolynomial, n);
 
-	int factor = -1;
 	for (unsigned int iter = 0; leads[iter].size() != 0; iter++)
 	{
 		for (auto & elem : leads[iter])
@@ -637,7 +636,6 @@ void PolyRing<_Scalar>::quotientHilbertPoly(Poly<mpq_class> &hilbertPolynomial,c
 			}
 		}
 		leads.push_back(nextleads);
-		factor = -factor;
 	}
 
 	hilbertPolynomial = Poly<mpq_class>(n.getRing());
@@ -649,6 +647,7 @@ void PolyRing<_Scalar>::quotientHilbertPoly(Poly<mpq_class> &hilbertPolynomial,c
 			Poly<mpq_class> retVal(n.getRing());
 			monpoly(i, mons->vars, retVal, n);
 			mpq_class factor = degrees[i];
+
 			hilbertPolynomial += factor * retVal;
 		}
 	}
