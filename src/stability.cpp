@@ -331,7 +331,7 @@ bool checkSemistability(PolyRing<Scalar> &Ring, DensePolyMatrix<Scalar> &M, unsi
 					return result;
 				}
 			}
-			else if (extPower == maxExt && sPower == actualThreshold && kernelRank == 0)
+			else if (extPower >= maxExt && sPower >= actualThreshold && kernelRank == 0)
 			{
 				if (opt.verbosity >= 1)
 				{
