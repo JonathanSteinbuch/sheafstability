@@ -5,8 +5,8 @@
 
 #include "DensePolyMatrix.hpp"
 
-#include "Helpers.hpp"
-#include "Modulus.hpp"
+#include "../helpers/Helpers.hpp"
+#include "../helpers/Modulus.hpp"
 
 template<typename _Scalar>
 	int DensePolyMatrix<_Scalar>::indegree()
@@ -20,9 +20,6 @@ template<typename _Scalar>
 		return sum(outdegrees);
 	}
 
-//Tries to compute all twists from the given output twists.
-//If there are no outdegrees given, the first outdegree is assumed to be 0.
-//Will return false if the degree computation is not possible.
 template<typename _Scalar>
 bool DensePolyMatrix<_Scalar>::computeDegrees(const vector<int> &outdegs)
 {
@@ -160,31 +157,6 @@ DensePolyMatrix<_Scalar>::DensePolyMatrix(PolyRing<_Scalar>* mB,const vector<vec
 }
 
 
-template <typename _Scalar>
-DensePolyMatrix<_Scalar>::DensePolyMatrix(const SparsePolyMatrix<_Scalar> &old)
-{
-	Ring = old.Ring;
-
-	indegrees =old.indegrees;
-	outdegrees = old.outdegrees;
-
-	inlabels = old.inlabels;
-	outlabels = old.outlabels;
-
-	rows = old.getRows();
-	cols = old.getCols();
-
-	for (unsigned int r = 0; r < rows; r++)
-	{
-		vector<Poly<_Scalar> > row;
-		for (unsigned int c = 0; c < cols; c++)
-		{
-			row.push_back(old.randomreadaccess(r, c));
-		}
-		entries.push_back(row);
-	}
-}
-
 template<typename _Scalar>
 DensePolyMatrix<_Scalar>::DensePolyMatrix(PolyRing<_Scalar>* mB, const unsigned int sx, const unsigned int sy,const vector<vector<Poly<_Scalar> > > &entries) :
 		Ring(mB), rows(sx), cols(sy), entries(entries)
@@ -205,10 +177,6 @@ DensePolyMatrix<_Scalar>::DensePolyMatrix(PolyRing<_Scalar>* mB, const unsigned 
 {
 }
 
-//Create polynomial matrix from the scalar representation.
-//sx and sy are the dimensions of the output matrix.
-//The degree is the applied twist to which the scalar matrix was formed.
-//Make sure the input matrix is well-formed.
 template<typename _Scalar>
 DensePolyMatrix<_Scalar>::DensePolyMatrix(PolyRing<_Scalar>* mB, const SparseScalarMatrix<_Scalar>& inmatrix, const unsigned int sx, const unsigned int sy, const vector<int> &outdegs, const int degree, bool homogeneous) :
 		Ring(mB), rows(sx), cols(sy)
@@ -351,7 +319,6 @@ std::ostream &operator<<(std::ostream &os, DensePolyMatrix<_Scalar> const &m)
 	return os;
 }
 
-//Print every column as an operator, i.e. the zum of the nonzero entries followed by the row label.
 template<typename _Scalar>
 void DensePolyMatrix<_Scalar>::printAsOperator(std::ostream &os)
 {
@@ -394,7 +361,7 @@ void DensePolyMatrix<_Scalar>::printAsOperator(std::ostream &os)
 	os << endl;
 }
 
-//Print in such a way that Macaulay2 can read it in automatically
+
 template<typename _Scalar>
 void DensePolyMatrix<_Scalar>::printForMacaulay2(std::ostream &os)
 {
@@ -419,7 +386,24 @@ void DensePolyMatrix<_Scalar>::printForMacaulay2(std::ostream &os)
 	os << "}";
 }
 
-//Direct sum matrix, mapping multiple inputs to multiple outputs
+template<typename _Scalar>
+void DensePolyMatrix<_Scalar>::printForLatex(std::ostream &os)
+{
+	for (unsigned int i = 0; i < rows; i++)
+	{
+		for (unsigned int j = 0; j < cols; j++)
+		{
+			entries[i][j].print(os,true);
+			if(j+1 < cols)
+			{
+				os << "& ";
+			}
+		}
+		os << "\\\\" << endl;
+	}
+}
+
+
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> directsum(const vector<DensePolyMatrix<_Scalar> > &summands)
 {
@@ -471,7 +455,6 @@ template DensePolyMatrix<mpz_class> directsum<mpz_class>(const vector<DensePolyM
 template DensePolyMatrix<mpq_class> directsum<mpq_class>(const vector<DensePolyMatrix<mpq_class> > &summands);
 template DensePolyMatrix<numbermodulo> directsum<numbermodulo>(const vector<DensePolyMatrix<numbermodulo> > &summands);
 
-//Direct sum matrix, mapping multiple inputs to multiple outputs
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> directsum(const vector<const DensePolyMatrix<_Scalar>*> &summands)
 {
@@ -523,7 +506,7 @@ template DensePolyMatrix<mpz_class> directsum<mpz_class>(const vector<const Dens
 template DensePolyMatrix<mpq_class> directsum<mpq_class>(const vector<const DensePolyMatrix<mpq_class>* > &summands);
 template DensePolyMatrix<numbermodulo> directsum<numbermodulo>(const vector<const DensePolyMatrix<numbermodulo>* > &summands);
 
-//Mapping multiple inputs to the sum of the outputs.
+
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> sum(const vector<const DensePolyMatrix<_Scalar>*> &summands)
 {
@@ -566,7 +549,6 @@ template DensePolyMatrix<mpz_class> sum<mpz_class>(const vector<const DensePolyM
 template DensePolyMatrix<mpq_class> sum<mpq_class>(const vector<const DensePolyMatrix<mpq_class>* > &summands);
 template DensePolyMatrix<numbermodulo> sum<numbermodulo>(const vector<const DensePolyMatrix<numbermodulo>* > &summands);
 
-//maping n = power inputs to n outputs by the same map
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::ntimes(const unsigned int power) const
 {
@@ -579,7 +561,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::ntimes(const unsigned int pow
 	return directsum(summands);
 }
 
-//Matrix describing the degree power of the irrelevant ideal.
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::irrelevantPower(PolyRing<_Scalar> &mB, int degree)
 {
@@ -596,13 +577,16 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::irrelevantPower(PolyRing<_Sca
 	return DensePolyMatrix<_Scalar>(&mB, 1, row.size(), list);
 }
 
-//Compute the kernel of the matrix in the twist given by degreeOfInterest via a Scalar representation
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::kernel(unsigned int degreeOfInterest, bool homogeneous, const  program_options &opt)
 {
 	SparseScalarMatrix<_Scalar> inMat = this->degreeMatrix(degreeOfInterest, homogeneous);
 
+	//cout << inMat << endl << endl;
+
 	SparseScalarMatrix<_Scalar> kernel = inMat.kernel(opt);
+
+	//cout << kernel << endl;
 
 	DensePolyMatrix<_Scalar> mBker(Ring, kernel, cols, kernel.getCols(), indegrees, degreeOfInterest, homogeneous);
 	mBker.setLabels(
@@ -610,7 +594,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::kernel(unsigned int degreeOfI
 	return mBker;
 }
 
-//Construct the matrix the kernel of which is the symmetric power of the original kernel.
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::symMatrix(const unsigned int power) const
 {
@@ -651,7 +634,14 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::symMatrix(const unsigned int 
 					}
 				}
 				row.push_back((pos != -1) ? entries[t][pos] * ((_Scalar) (symn[v][pos])) : nullpoly);
+			/*	if((pos != -1))
+				{
+					notnull ++;
+				}
+				all++;*/
 			}
+
+			//cout << notnull << " / " << all << " *>= " << sizeof(nullpoly) << endl;
 			assert(list.size() < nrows);
 
 			list.push_back(row);
@@ -668,7 +658,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::symMatrix(const unsigned int 
 	return DensePolyMatrix<_Scalar>(Ring, nrows, ncols, list, outdegs, indegs);
 }
 
-//Construct the matrix the kernel of which is the exterior power of the original kernel.
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::extMatrix(const unsigned int power) const
 {
@@ -715,7 +704,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::extMatrix(const unsigned int 
 	return DensePolyMatrix<_Scalar>(Ring, nrows, ncols, list, outdegs);
 }
 
-//Construct the matrix given by taking each entry to the same power.
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::powerMatrix(const unsigned int power) const
 {
@@ -740,9 +728,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::powerMatrix(const unsigned in
 	return DensePolyMatrix<_Scalar>(Ring, nrows, ncols, list, outdegs);
 }
 
-//Compute the scalar matrix describing this matrix in the given degree with respect to the monomial basis of the ring.
-//The output is in the form of triplets (row, column, value). trows and tcols will give the total dimension of the matrix.
-//If all entries are homogeneous use the homogeneous flag to save a lot of computational resources.
 template<typename _Scalar>
 template<typename tripScalar>
 vector<rcvTriplet<tripScalar> > DensePolyMatrix<_Scalar>::degreeTriplets(const int degree, unsigned int& trows, unsigned int& tcols, bool homogeneous)
@@ -816,8 +801,32 @@ vector<rcvTriplet<tripScalar> > DensePolyMatrix<_Scalar>::degreeTriplets(const i
 	return tripletList;
 }
 
-//Compute the sparse scalar matrix describing this matrix in the given degree with respect to the monomial basis of the ring.
-//If all entries are homogeneous use the homogeneous flag to save a lot of computational resources.
+/*template<typename _Scalar>
+libnormaliz::Matrix<_Scalar> mBmatrix<_Scalar>::nmzdegreeMatrix(const int degree)
+{
+	unsigned int trows, tcols;
+	vector<Eigen::Triplet<_Scalar> > tripletList = degreeTriplets<_Scalar>(degree, trows, tcols);
+	cout << "libnormaliz Matrix from Triplets..." << endl;
+	vector<vector<_Scalar> > nmzentries;
+	nmzentries.reserve(trows);
+	vector<_Scalar> row;
+	row.reserve(tcols);
+	for (unsigned int j = 0; j < tcols; j++)
+	{
+		row.push_back(0);
+	}
+	for (unsigned int i = 0; i < trows; i++)
+	{
+		nmzentries.push_back(row);
+	}
+	for (unsigned int c = 0; c < tripletList.size(); c++)
+	{
+		nmzentries[tripletList[c].row()][tripletList[c].col()] = tripletList[c].value();
+	}
+
+	return libnormaliz::Matrix<_Scalar>(nmzentries);
+}*/
+
 template<typename _Scalar>
 SparseScalarMatrix<_Scalar> DensePolyMatrix<_Scalar>::degreeMatrix(const int degree, bool homogeneous)
 {
@@ -828,7 +837,6 @@ SparseScalarMatrix<_Scalar> DensePolyMatrix<_Scalar>::degreeMatrix(const int deg
 	return M;
 }
 
-//Matrix multiplication
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::operator*(const DensePolyMatrix<_Scalar>& rhs) const
 {
@@ -853,9 +861,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::operator*(const DensePolyMatr
 	return ret;
 }
 
-//Experimental modulo operator.
-//Is supposed to compute the matrix giving the image of this matrix modulo the image of the right hand side matrix.
-//Does not yet work quite as intended
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::operator%(const DensePolyMatrix<_Scalar>& rhs) const
 {
@@ -870,7 +875,7 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::operator%(const DensePolyMatr
 
 	//cout << sumx << endl;
 
-	int d = -max(lhs.indegrees);
+	int d = max(lhs.indegrees);
 	SparseScalarMatrix<_Scalar> inMat = sumx.degreeMatrix(d);
 
 	/*	auto inMat2 = inMat;
@@ -889,7 +894,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::operator%(const DensePolyMatr
 	return m;
 }
 
-//Computes the Jacobi Matrix to this matrix
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::jacobiMatrix()
 {
@@ -932,7 +936,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::jacobiMatrix()
 	return M;
 }
 
-//Computes the Jacobi-Taylor-Matrix to the giben poly, an extension of the Jacobi Matrix with higher derivatives.
 template<typename _Scalar>
 DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::jacobiTaylor(PolyRing<_Scalar>* mB, const Poly<_Scalar>& poly, unsigned int n)
 {
@@ -946,9 +949,7 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::jacobiTaylor(PolyRing<_Scalar
 	for (unsigned int nu = 0; nu < snu; nu++)
 	{
 		vector<unsigned int> v = rB.getExponents(nu);
-		Poly<_Scalar> parderiv = poly.taylorDerive(mB->getMonomial(v));
-		parderiv.changeRing(mB);
-		parderivs.push_back(parderiv);
+		parderivs.push_back(poly.taylorDerive(mB->getMonomial(v)));
 
 		if (nu >= 1)
 		{
@@ -998,7 +999,6 @@ DensePolyMatrix<_Scalar> DensePolyMatrix<_Scalar>::jacobiTaylor(PolyRing<_Scalar
 	return M;
 }
 
-//compute the n-minors of this matrix
 template<typename _Scalar>
 const vector<Poly<_Scalar> > DensePolyMatrix<_Scalar>::computeMinors(const unsigned int n) const
 {

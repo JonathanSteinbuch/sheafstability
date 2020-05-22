@@ -5,8 +5,8 @@
 
 #include "SparsePolyMatrix.hpp"
 
-#include "Helpers.hpp"
-#include "Modulus.hpp"
+#include "../helpers/Helpers.hpp"
+#include "../helpers/Modulus.hpp"
 
 
 template<typename _Scalar>
@@ -21,9 +21,7 @@ template<typename _Scalar>
 		return sum(outdegrees);
 	}
 
-//Tries to compute all twists from the given output twists.
-//If there are no outdegrees given, the first outdegree is assumed to be 0.
-//Will return false if the degree computation is not possible.
+
 template<typename _Scalar>
 bool SparsePolyMatrix<_Scalar>::computeDegrees(const vector<int> &outdegs)
 {
@@ -214,10 +212,7 @@ Ring(mB), indegrees(indegs), outdegrees(outdegs),	rows(rows)
 		computeCols(numcols);
 	}
 
-//Create polynomial matrix from the scalar representation.
-//sx and sy are the dimensions of the output matrix.
-//The degree is the applied twist to which the scalar matrix was formed.
-//Make sure the input matrix is well-formed.
+
 template<typename _Scalar>
 SparsePolyMatrix<_Scalar>::SparsePolyMatrix(PolyRing<_Scalar>* mB, const SparseScalarMatrix<_Scalar>& inmatrix, const unsigned int sx, const unsigned int sy, const vector<int> &outdegs, const int degree, bool homogeneous) :
 		Ring(mB)
@@ -393,7 +388,7 @@ template std::ostream &operator<< <mpz_class>(std::ostream &os, const SparsePoly
 template std::ostream &operator<< <mpq_class>(std::ostream &os, const SparsePolyMatrix<mpq_class>  &m);
 template std::ostream &operator<< <numbermodulo>(std::ostream &os, const SparsePolyMatrix<numbermodulo>  &m);
 
-//Print in such a way that Macaulay2 can read it in automatically
+
 template<typename _Scalar>
 void SparsePolyMatrix<_Scalar>::printForMacaulay2(std::ostream &os)
 {
@@ -418,25 +413,51 @@ void SparsePolyMatrix<_Scalar>::printForMacaulay2(std::ostream &os)
 	os << "}";
 }
 
-//Compute the kernel of the matrix in the twist given by degreeOfInterest via a Scalar representation
+template<typename _Scalar>
+void SparsePolyMatrix<_Scalar>::printForLatex(std::ostream &os)
+{
+	for (unsigned int i = 0; i < rows.size(); i++)
+	{
+		for (unsigned int j = 0; j < cols.size(); j++)
+		{
+			randomreadaccess(i,j).print(os,true);
+			if(j+1 < cols.size())
+			{
+				os << "& ";
+			}
+		}
+		os << "\\\\" << endl;
+	}
+}
+
+
+
 template<typename _Scalar>
 SparsePolyMatrix<_Scalar> SparsePolyMatrix<_Scalar>::kernel(unsigned int degreeOfInterest, bool homogeneous, const program_options & opt)
 {
 	SparseScalarMatrix<_Scalar> inMat = this->degreeMatrix(degreeOfInterest, homogeneous);
 
-	//cout << inMat << endl << endl;
+	if (opt.verbosity >= 1)
+	{
+
+		cout << "Computing Kernel of " << this->getRows() << "x" << this->getCols() << "-Matrix (internally " << inMat.getRows() << "x" << inMat.getCols() << ")...";
+		cout << endl;
+	}
+
+	if (opt.verbosity >= 4)
+	{
+		cout << "Internal Matrix:" << endl;
+		cout << inMat;
+		cout << endl << endl;
+	}
 
 	SparseScalarMatrix<_Scalar> kernel = inMat.kernel(opt);
 
-	//cout << kernel << endl;
-
 	SparsePolyMatrix<_Scalar> mBker(Ring, kernel, cols.size(), kernel.getCols(), indegrees, degreeOfInterest, homogeneous);
-	mBker.setLabels(
-	{ }, this->inlabels);
+	mBker.setLabels({ }, this->inlabels);
 	return mBker;
 }
 
-//Construct the matrix the kernel of which is the symmetric power of the original kernel.
 template<typename _Scalar>
 SparsePolyMatrix<_Scalar> SparsePolyMatrix<_Scalar>::symMatrix(const unsigned int power) const
 {
@@ -498,7 +519,6 @@ SparsePolyMatrix<_Scalar> SparsePolyMatrix<_Scalar>::symMatrix(const unsigned in
 	return SparsePolyMatrix<_Scalar>(Ring, rowlist, ncols, outdegs, indegs);
 }
 
-//Construct the matrix the kernel of which is the exterior power of the original kernel.
 template<typename _Scalar>
 SparsePolyMatrix<_Scalar> SparsePolyMatrix<_Scalar>::extMatrix(const unsigned int power) const
 {
@@ -547,7 +567,6 @@ SparsePolyMatrix<_Scalar> SparsePolyMatrix<_Scalar>::extMatrix(const unsigned in
 	return SparsePolyMatrix<_Scalar>(Ring, list, ncols, outdegs);
 }
 
-//Construct the matrix given by taking each entry to the same power.
 template<typename _Scalar>
 SparsePolyMatrix<_Scalar> SparsePolyMatrix<_Scalar>::powerMatrix(const unsigned int power) const
 {
@@ -571,9 +590,6 @@ SparsePolyMatrix<_Scalar> SparsePolyMatrix<_Scalar>::powerMatrix(const unsigned 
 	return SparsePolyMatrix<_Scalar>(Ring,list, ncols, outdegs);
 }
 
-//Compute the scalar matrix describing this matrix in the given degree with respect to the monomial basis of the ring.
-//The output is in the form of triplets (row, column, value). trows and tcols will give the total dimension of the matrix.
-//If all entries are homogeneous use the homogeneous flag to save a lot of computational resources.
 template<typename _Scalar>
 template<typename tripScalar>
 void SparsePolyMatrix<_Scalar>::degreeTriplets(const int degree, vector<rcvTriplet<tripScalar> > &tripletList, unsigned int& trows, unsigned int& tcols, bool homogeneous) const
@@ -637,8 +653,32 @@ void SparsePolyMatrix<_Scalar>::degreeTriplets(const int degree, vector<rcvTripl
 	tcols = coloffsets[cols.size()];
 }
 
-//Compute the sparse scalar matrix describing this matrix in the given degree with respect to the monomial basis of the ring.
-//If all entries are homogeneous use the homogeneous flag to save a lot of computational resources.
+/*template<typename _Scalar>
+libnormaliz::Matrix<_Scalar> sparsePolyMatrix<_Scalar>::nmzdegreeMatrix(const int degree)
+{
+	unsigned int trows, tcols;
+	vector<Eigen::Triplet<_Scalar> > tripletList = degreeTriplets<_Scalar>(degree, trows, tcols);
+	cout << "libnormaliz Matrix from Triplets..." << endl;
+	vector<vector<_Scalar> > nmzentries;
+	nmzentries.reserve(trows);
+	vector<_Scalar> row;
+	row.reserve(tcols);
+	for (unsigned int j = 0; j < tcols; j++)
+	{
+		row.push_back(0);
+	}
+	for (unsigned int i = 0; i < trows; i++)
+	{
+		nmzentries.push_back(row);
+	}
+	for (unsigned int c = 0; c < tripletList.size(); c++)
+	{
+		nmzentries[tripletList[c].row()][tripletList[c].col()] = tripletList[c].value();
+	}
+
+	return libnormaliz::Matrix<_Scalar>(nmzentries);
+}*/
+
 template<typename _Scalar>
 SparseScalarMatrix<_Scalar> SparsePolyMatrix<_Scalar>::degreeMatrix(const int degree, bool homogeneous)
 {
@@ -650,7 +690,6 @@ SparseScalarMatrix<_Scalar> SparsePolyMatrix<_Scalar>::degreeMatrix(const int de
 	return M;
 }
 
-//Matrix multiplication
 template <typename Scalar>
 SparsePolyMatrix<Scalar> SparsePolyMatrix<Scalar>::operator*(const SparsePolyMatrix<Scalar>& rhs) const
 {

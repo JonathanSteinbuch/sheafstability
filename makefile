@@ -9,10 +9,15 @@
 RM := rm -rf
 
 # All of the sources participating in the build are defined here
--include make/sources.mk
--include make/src/subdir.mk
--include make/subdir.mk
--include make/objects.mk
+-include sources.mk
+-include src/ring/subdir.mk
+-include src/matrices/subdir.mk
+-include src/jobs/subdir.mk
+-include src/helpers/subdir.mk
+-include src/subdir.mk
+-include subdir.mk
+-include objects.mk
+
 
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(CC_DEPS)),)

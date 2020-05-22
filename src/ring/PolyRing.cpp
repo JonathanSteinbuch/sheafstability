@@ -6,8 +6,8 @@
 
 #include "PolyRing.hpp"
 
+#include "../helpers/Modulus.hpp"
 #include "Poly.hpp"
-#include "Modulus.hpp"
 
 monlookups::monlookups(const unsigned int vars, const vector<string> (&printvar), const unsigned int order, int realvars, const vector<int> &weights, bool invert) : lu(vars), vars(vars), order(order), realvars(realvars)
 {
@@ -139,6 +139,13 @@ void PolyRing<_Scalar>::reCalcRelations(const unsigned int minDegree)
 		if (!inIdeal){
 			nbasis.push_back(elem);
 		}
+
+		vector<Poly<_Scalar> > coeffs;
+		coeffs.assign(gB.size(), Poly<_Scalar>(this));
+		Poly<_Scalar> rest(this);
+		bool inIdeal2 = groebnerDivide(Poly<_Scalar>(this->BaseRing, elem, 1), coeffs, rest,gB);
+		assert((inIdeal2 || rest.leadingMonomial() < elem ) == inIdeal);
+
 	}
 
 	basis.resize(nbasisSizeOffset,0);
@@ -211,7 +218,6 @@ inline void PolyRing<_Scalar>::reSizeToIndex(const unsigned int neededIndex)
 	}
 }
 
-//get the Hilbert function as far as it has been computed
 template<typename _Scalar>
 vector<unsigned int> PolyRing<_Scalar>::getHilbert()
 {
@@ -251,21 +257,18 @@ unsigned int PolyRing<_Scalar>::getDegree(const mBmonomial monomial) const
 	return getDegree(monomial.getId());
 }
 
-//Get the monomial ID corresponding to an exponent vector
 template<typename _Scalar>
 unsigned int PolyRing<_Scalar>::getIndex(const vector<unsigned int> &x)
 {
 	return getIndex(getDegree(x), x);
 }
 
-//Get the monomial corresponding to an exponent vector
 template<typename _Scalar>
 mBmonomial PolyRing<_Scalar>::getMonomial(const vector<unsigned int> &x)
 {
 	return mBmonomial(getIndex(x));
 }
 
-//get the monomial corresponding to the given variable string (starting at pos
 template<typename _Scalar>
 unsigned int PolyRing<_Scalar>::getVar(string var, unsigned int pos)
 {
@@ -279,14 +282,13 @@ unsigned int PolyRing<_Scalar>::getVar(string var, unsigned int pos)
 	return mB_ERROR;
 }
 
-//Get the monomial ID corresponding to an exponent vector if you already know the degree
 template<typename _Scalar>
 unsigned int PolyRing<_Scalar>::getIndex(const unsigned int degree, const vector<unsigned int> &x)
 {
 	reSize(degree);
 
 	unsigned int pos = 0;
-	switch (mons->order) //Depends on the monomial order.
+	switch (mons->order)
 	{
 	case degrevlex:
 	{
@@ -327,7 +329,6 @@ unsigned int PolyRing<_Scalar>::getIndex(const unsigned int degree, const vector
 	return pos;
 }
 
-//Get the monomial corresponding to an exponent vector if you already know the degree
 template<typename _Scalar>
 mBmonomial PolyRing<_Scalar>::getMonomial(const unsigned int degree, const vector<unsigned int> &x)
 {
@@ -335,7 +336,11 @@ mBmonomial PolyRing<_Scalar>::getMonomial(const unsigned int degree, const vecto
 	return mBmonomial(getIndex(degree, x));
 }
 
-//Get the basis index to the degBasisIndexth monomial in the given degree
+/*	unsigned int getIndex(const monom<mons->vars,_Scalar>& monomial)
+ {
+ return getIndex(monomial.x);
+ }*/
+
 template<typename _Scalar>
 unsigned int PolyRing<_Scalar>::getBasisIndexfromDegBasisIndex(const unsigned int degree, const unsigned int degBasisIndex) const
 {
@@ -346,14 +351,12 @@ unsigned int PolyRing<_Scalar>::getBasisIndexfromDegBasisIndex(const unsigned in
 	return ret;
 }
 
-//Get the monomial corresponding to the degBasisIndexth monomial in the given degree
 template<typename _Scalar>
 mBmonomial PolyRing<_Scalar>::getMonomialfromBasis(const unsigned int degree, const unsigned int degBasisIndex) const
 {
 	return basis[getBasisIndexfromDegBasisIndex(degree, degBasisIndex)];
 }
 
-//Get Basis Index of the given basis element
 template<typename _Scalar>
 unsigned int PolyRing<_Scalar>::getDegBasisIndex(const mBmonomial monomial) const
 {
@@ -362,7 +365,6 @@ unsigned int PolyRing<_Scalar>::getDegBasisIndex(const mBmonomial monomial) cons
 	return getDegBasisIndex(degree, Index);
 }
 
-//Get Basis Index of the given basis element (a little bit faster if we already know its degree)
 template<typename _Scalar>
 unsigned int PolyRing<_Scalar>::getDegBasisIndex(const unsigned int degree, const mBmonomial monomial) const
 {
@@ -393,7 +395,12 @@ inline const vector<unsigned int> &PolyRing<_Scalar>::getExponents(const mBmonom
 	return mons->list[monomial.getId()];
 }
 
-//computes the greatest common divisor
+/*	const mBpolynomial<_Scalar> monomBasis<_Scalar>::getLookup(const monom<mons->vars,_Scalar>& monomial,const _Scalar coefficient) const
+ {
+ unsigned int index = getIndex(monomial);
+ return getLookup(index,coefficient);
+ }*/
+
 template<typename _Scalar>
 mBmonomial PolyRing<_Scalar>::mongcd(const mBmonomial &lhs, const mBmonomial &rhs)
 {
@@ -410,7 +417,6 @@ mBmonomial PolyRing<_Scalar>::mongcd(const mBmonomial &lhs, const mBmonomial &rh
 	return getMonomial(degree, x);
 }
 
-//computes the greatest common divisor
 template<typename _Scalar>
 pair<mBmonomial,_Scalar> PolyRing<_Scalar>::pairgcd(const pair<mBmonomial,_Scalar> &lhs, const pair<mBmonomial,_Scalar> &rhs)
 {
@@ -419,7 +425,6 @@ pair<mBmonomial,_Scalar> PolyRing<_Scalar>::pairgcd(const pair<mBmonomial,_Scala
 	return pair<mBmonomial,_Scalar>(mon,scal);
 }
 
-//computes the least common multiple
 template<typename _Scalar>
 pair<mBmonomial,_Scalar> PolyRing<_Scalar>::pairlcm(const pair<mBmonomial,_Scalar> &lhs, const pair<mBmonomial,_Scalar> &rhs)
 {
@@ -428,7 +433,6 @@ pair<mBmonomial,_Scalar> PolyRing<_Scalar>::pairlcm(const pair<mBmonomial,_Scala
 	return pair<mBmonomial,_Scalar>(mon,scal);
 }
 
-//computes the least common multiple
 template<typename _Scalar>
 mBmonomial PolyRing<_Scalar>::monlcm(const mBmonomial &lhs, const mBmonomial &rhs)
 {
@@ -469,7 +473,6 @@ mBmonomial PolyRing<_Scalar>::multiply(const mBmonomial &lhs, const mBmonomial &
 	return getMonomial(degree, x);
 }
 
-//Divides monomial with coefficients. Returns mon_ERROR pair if they are not divisible.
 template<typename _Scalar>
 pair<mBmonomial,_Scalar> PolyRing<_Scalar>::divide(const pair<mBmonomial,_Scalar> &dividend, const pair<mBmonomial,_Scalar> &divisor)
 {
@@ -478,7 +481,6 @@ pair<mBmonomial,_Scalar> PolyRing<_Scalar>::divide(const pair<mBmonomial,_Scalar
 	return pair<mBmonomial,_Scalar>(mon,scal);
 }
 
-//Divides monomials. Returns mon_ERROR if they are not divisible.
 template<typename _Scalar>
 mBmonomial PolyRing<_Scalar>::divide(const mBmonomial &dividend, const mBmonomial &divisor)
 {
@@ -499,10 +501,9 @@ mBmonomial PolyRing<_Scalar>::divide(const mBmonomial &dividend, const mBmonomia
 	return getMonomial(x);
 }
 
-//computes the derivative divided by the factorial of the exponents in the differential operator
 template<typename _Scalar>
 pair<unsigned int, _Scalar> PolyRing<_Scalar>::taylorDerive(const mBmonomial &monomial, const mBmonomial &diffop)
-{
+{ //computes the derivative divided by the factorial of the exponents in the differential operator
 	if (diffop.isOne())
 		return pair<unsigned int, _Scalar>(0, 0);
 	vector<unsigned int> x(mons->vars);
@@ -524,7 +525,6 @@ pair<unsigned int, _Scalar> PolyRing<_Scalar>::taylorDerive(const mBmonomial &mo
 	return pair<unsigned int, _Scalar>(getIndex(x), prefactor);
 }
 
-//Gets the number of monomials in the basis in the given degree
 template<typename _Scalar>
 unsigned int PolyRing<_Scalar>::getBasisSize(const int degree)
 {
@@ -539,7 +539,6 @@ unsigned int PolyRing<_Scalar>::getBasisSize(const int degree)
 	}
 }
 
-//Checks if the projective Curve given by the Ring is Smooth
 template<typename _Scalar>
 bool PolyRing<_Scalar>::isSmooth()
 {
@@ -566,8 +565,6 @@ bool PolyRing<_Scalar>::isSmooth()
 	}
 }
 
-//Computes the polynomial expressing the number of lattice points in the monomial cone in the given degree and variables.
-//Used here to compute the Hilbert polynomial.
 template<typename _Scalar>
 void PolyRing<_Scalar>::monpoly(const int deg, const unsigned int vars, Poly<mpq_class> &retVal, const Poly<mpq_class> &n)
 {
@@ -584,8 +581,6 @@ void PolyRing<_Scalar>::monpoly(const int deg, const unsigned int vars, Poly<mpq
 	retVal = numerator;
 }
 
-
-//Computes the Hilbert Polynomial of the Quotient Ring with respect to the given relations. Needs a Gröbner Basis as input.
 template<typename _Scalar>
 void PolyRing<_Scalar>::quotientHilbertPoly(Poly<mpq_class> &hilbertPolynomial,const vector<Poly<_Scalar> > &relations)
 {
@@ -604,6 +599,7 @@ void PolyRing<_Scalar>::quotientHilbertPoly(Poly<mpq_class> &hilbertPolynomial,c
 
 	monpoly(0, mons->vars, hilbertPolynomial, n);
 
+	int factor = -1;
 	for (unsigned int iter = 0; leads[iter].size() != 0; iter++)
 	{
 		for (auto & elem : leads[iter])
@@ -636,6 +632,7 @@ void PolyRing<_Scalar>::quotientHilbertPoly(Poly<mpq_class> &hilbertPolynomial,c
 			}
 		}
 		leads.push_back(nextleads);
+		factor = -factor;
 	}
 
 	hilbertPolynomial = Poly<mpq_class>(n.getRing());
@@ -647,13 +644,11 @@ void PolyRing<_Scalar>::quotientHilbertPoly(Poly<mpq_class> &hilbertPolynomial,c
 			Poly<mpq_class> retVal(n.getRing());
 			monpoly(i, mons->vars, retVal, n);
 			mpq_class factor = degrees[i];
-
 			hilbertPolynomial += factor * retVal;
 		}
 	}
 }
 
-//Reduces a polynomial with respect to the given Groebner Basis generators. Returns true if the rest is 0, i.e. the polnomial is in the ideal.
 template<typename _Scalar>
 bool PolyRing<_Scalar>::groebnerDivide(Poly<_Scalar> f, vector<Poly<_Scalar> > &coeffs, Poly<_Scalar> &rest, const vector<Poly<_Scalar> > &generators )
 {
@@ -714,7 +709,6 @@ bool PolyRing<_Scalar>::groebnerDivide(Poly<_Scalar> f, vector<Poly<_Scalar> > &
 	return rest.isNull();
 }
 
-//computes the S-polynomial occuring in the classical Buchberger algorithm
 template<typename _Scalar>
 Poly<_Scalar> PolyRing<_Scalar>::groebnerS(const Poly<_Scalar> &poly1, const Poly<_Scalar> &poly2){
 	const pair<mBmonomial,_Scalar> l1 = poly1.leadingTerm();
@@ -729,7 +723,6 @@ Poly<_Scalar> PolyRing<_Scalar>::groebnerS(const Poly<_Scalar> &poly1, const Pol
 	return retVal;
 }
 
-//Reduces a set of generators
 template<typename _Scalar>
 void PolyRing<_Scalar>::reduce(vector<Poly<_Scalar> > &generators)
 {
@@ -796,7 +789,6 @@ void PolyRing<_Scalar>::computeGroebnerBasis(vector<Poly<_Scalar> > &generators)
 	reduce(generators);
 }
 
-//Changes the relations of the current ring. Be sure to use it correctly. The Constructors are safer.
 template<typename _Scalar>
 void PolyRing<_Scalar>::setRelations(const vector<Poly<_Scalar> > &generators)
 {
@@ -816,7 +808,7 @@ bool PolyRing<_Scalar>::print(std::ostream &os, const mBmonomial monomial, bool 
 	{
 		if (exponents[i] != 0)
 		{
-			if (longform == true && visible == true)
+			if (longform == true && visible == true && !(opt->outputLatex))
 				os << "*";
 			visible = true;
 			os << mons->printvar[i];

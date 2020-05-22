@@ -3,8 +3,8 @@
 // Author      : Jonathan Steinbuch
 //============================================================================
 
-#ifndef SRC_MODULUS_HPP_
-#define SRC_MODULUS_HPP_
+#ifndef SRC_HELPERS_MODULUS_HPP_
+#define SRC_HELPERS_MODULUS_HPP_
 
 #include <numeric>
 
@@ -12,7 +12,6 @@ using namespace std;
 
 typedef unsigned long datatype;
 
-//Table automating inverses
 struct invTable
 {
 	void set(datatype modulus)
@@ -40,13 +39,11 @@ struct invTable
 	vector<datatype> invs;
 };
 
-//Class implementing, F_p for p a prime.
 class numbermodulo {
-	datatype data; //the value
+	datatype data;
 
-	//Attention! These values being static means we can only compute with one modulus at a time
-	static datatype modulus; //the modulus
-	static invTable lookup; //the inversion lookup table
+	static datatype modulus;
+	static invTable lookup;
 
 public:
 //Constructors:
@@ -166,6 +163,7 @@ public:
 		return lhs;
 	}
 
+	//template <typename datatype, datatype modulus>
 	friend numbermodulo gcd(const numbermodulo& lhs,const numbermodulo&  rhs)
 	{
 		return 1;
@@ -177,4 +175,4 @@ public:
 	}
 };
 
-#endif /* SRC_MODULUS_HPP_ */
+#endif /* SRC_HELPERS_MODULUS_HPP_ */

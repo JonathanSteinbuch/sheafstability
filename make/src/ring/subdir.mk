@@ -4,17 +4,20 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/stability.cpp 
+../src/ring/Poly.cpp \
+../src/ring/PolyRing.cpp 
 
 OBJS += \
-./src/stability.o 
+./src/ring/Poly.o \
+./src/ring/PolyRing.o 
 
 CPP_DEPS += \
-./src/stability.d 
+./src/ring/Poly.d \
+./src/ring/PolyRing.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-src/%.o: ../src/%.cpp
+src/ring/%.o: ../src/ring/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
 	g++ -std=c++17 -I/usr/local/include/ -I/home/math/jsteinbu/lela/include -O0 -fopenmp -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"

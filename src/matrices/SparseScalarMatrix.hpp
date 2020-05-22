@@ -3,8 +3,8 @@
 // Author      : Jonathan Steinbuch
 //============================================================================
 
-#ifndef SRC_SPARSESCALARMATRIX_HPP_
-#define SRC_SPARSESCALARMATRIX_HPP_
+#ifndef SRC_MATRICES_SPARSESCALARMATRIX_HPP_
+#define SRC_MATRICES_SPARSESCALARMATRIX_HPP_
 #include <cassert>
 #include <vector>
 #include <numeric>
@@ -17,7 +17,7 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/container/flat_map.hpp>
 
-#include "Helpers.hpp"
+#include "../helpers/Helpers.hpp"
 
 using namespace std;
 
@@ -34,8 +34,6 @@ using spRow = map<unsigned int, Scalar>;
 
 using spCol = set<unsigned int>;*/
 
-
-//Class implementing permutations. Specifically used for permutations of rows and columns of scalar matrices
 class Permutation
 {
 
@@ -57,8 +55,6 @@ public:
 		}
 	}
 
-	//if isImage is true the order vector is assumed to hold the images of the first entries in the permutation.
-	//if isImage is false it is assumed to hold the preimages.
 	Permutation(unsigned int n,const vector<unsigned int>& order, bool isImage = true)
 	{
 		if (isImage)
@@ -134,7 +130,6 @@ public:
 		return nPerm;
 	}
 
-	//swap to elements positions in the permutation
 	void swap(unsigned int a, unsigned int b)
 	{
 		unsigned int pa = _preimage[a];
@@ -145,7 +140,6 @@ public:
 		_preimage[b] = pa;
 	}
 
-	//After the original permutation perform a cyclic permutation to the right of the elements in the sequence
 	void swap(vector<unsigned int> sequence)
 	{
 		for (unsigned int i = 0; i < sequence.size() - 1; i++)
@@ -172,7 +166,6 @@ public:
 		return _preimage[i];
 	}
 
-	//Construct the permutation matrix for this permutation
 	template<typename Scalar>
 	SparseScalarMatrix<Scalar> matrix(bool invert = false)
 	{
@@ -201,10 +194,20 @@ public:
 	}
 };
 
+/*template<typename Scalar>
+ Scalar gcd(Scalar u, Scalar v)
+ {
+ while (v != 0)
+ {
+ Scalar r = u % v;
+ u = v;
+ v = r;
+ }
+ return u;
+ }*/
 const mpq_class gcd(const mpq_class &u, const mpq_class &v);
 const mpq_class lcm(const mpq_class &u, const mpq_class &v);
 
-//Tripletstruct used to fill sparse scalar matrices
 template<typename Scalar>
 struct rcvTriplet{
 	unsigned int row;
@@ -220,30 +223,32 @@ struct rcvTriplet{
 template<typename Scalar>
 class SparsePolyMatrix;
 
-//Class implementing a sparse representation of scalar matrices.
 template<typename Scalar>
 class SparseScalarMatrix
 {
-	Permutation rowPerm; //permutation of the rows
-	Permutation colPerm; //permutation of the columns
+	Permutation rowPerm;
+	Permutation colPerm;
 
-	vector<spRow<Scalar> > rows; //The rows as maps, here the values are stored.
-	vector<spCol > cols; //the columns, in each column only the set of rows which have nonzero entries for that column are stored.
+	vector<spRow<Scalar> > rows;
+	vector<spCol > cols; // we only store positions of nonzeros in the columns
 
-	spCol outrows; //rows that are printed
+	spCol outrows;
+
+	Scalar maxabs = 0;
 
 //Basic Linear Algebra:
 	Scalar rowproduct(const spRow<Scalar>& v1, const spRow<Scalar>& v2);
 
 	void add(unsigned int r, unsigned int c,const Scalar &value);
 
+	// moves the rows specified in sequence backwards
 	void swapRows(const vector<unsigned int>& sequence);
 
 	void swapRows(unsigned int a, unsigned int b);
 
 	void swapCols(unsigned int a, unsigned int b);
 
-	void symmSwaps(const vector<unsigned int>& newpos);
+	void symmSwaps(vector<unsigned int>& newpos, bool invert = false);
 
 	void multiply(spRow<Scalar>& v, Scalar factor);
 
@@ -294,7 +299,7 @@ public:
 	SparseScalarMatrix<Scalar> operator*(const SparseScalarMatrix<Scalar>& rhs) const;
 
 //Access:
-	const Scalar randomreadaccess(unsigned int row, unsigned int column) const;
+	const Scalar randomreadaccess(unsigned int r, unsigned int c) const;
 
 	size_t getRows() const
 	{
@@ -320,4 +325,4 @@ public:
 	SparseScalarMatrix<Scalar> kernel( const program_options &opt = noOptions);
 };
 
-#endif /* SRC_SPARSESCALARMATRIX_HPP_ */
+#endif /* SRC_MATRICES_SPARSESCALARMATRIX_HPP_ */

@@ -3,11 +3,12 @@
 // Author      : Jonathan Steinbuch
 //============================================================================
 
+#include "Helpers.hpp"
+
 #include <limits>
 
 #include <algorithm>
 
-#include "Helpers.hpp"
 
 int dotproduct(const vector<unsigned int> &u, const vector <int> &v){
 	assert(u.size()==v.size());
@@ -18,8 +19,6 @@ int dotproduct(const vector<unsigned int> &u, const vector <int> &v){
 	return sum;
 }
 
-
-//sum up only the elements in v that occur in u.
 int partsum(const vector<unsigned int> &u, const vector <int> &v){
 	int sum = 0;
 	for(unsigned int i = 0; i < u.size(); i++){
@@ -29,7 +28,6 @@ int partsum(const vector<unsigned int> &u, const vector <int> &v){
 	return sum;
 }
 
-//sum up all elements of u
 int sum(const vector<int> &u){
 	int sum = 0;
 	for(unsigned int i = 0; i < u.size(); i++){
@@ -48,29 +46,29 @@ int max(const vector<int> &input){
 		return x;
 	}
 
-//Iterate over all possible ways to sum to n.
-//Done in the way that translated to monomials it will represent the chosen monomial order.
-bool nextsum(vector<unsigned int> &coeffs, const unsigned int n, const unsigned int order)
+
+
+bool nextperm(vector<unsigned int> &perm, const unsigned int n, const unsigned int order)
 {
-	unsigned int endpos = coeffs.size() - 1;
+	unsigned int endpos = perm.size() - 1;
 	unsigned int i = 0;
 
 	switch (order)
 	{
 	case degrevlex:
 	{
-		if (coeffs[endpos] == n)
+		if (perm[endpos] == n)
 			return false;
 		unsigned int t = n;
 		for (i = 0; i < endpos; i++)
 		{
-			t -= coeffs[i];
-			if (coeffs[endpos] == t)
+			t -= perm[i];
+			if (perm[endpos] == t)
 			{
-				coeffs[i]--;
-				coeffs[i + 1] = coeffs[endpos] + 1;
+				perm[i]--;
+				perm[i + 1] = perm[endpos] + 1;
 				if (i + 1 != endpos)
-					coeffs[endpos] = 0;
+					perm[endpos] = 0;
 				break;
 			}
 		}
@@ -78,18 +76,18 @@ bool nextsum(vector<unsigned int> &coeffs, const unsigned int n, const unsigned 
 	}
 	case deglex:
 	{
-		if (coeffs[endpos] == n)
+		if (perm[endpos] == n)
 			return false;
 		for (i = 0; i < endpos; i++)
 		{
-			if (coeffs[i] != 0)
+			if (perm[i] != 0)
 			{
-				coeffs[i]--;
-				coeffs[i + 1] = coeffs[i + 1] + 1;
+				perm[i]--;
+				perm[i + 1] = perm[i + 1] + 1;
 				if (i != 0)
 				{
-					coeffs[0] = coeffs[i];
-					coeffs[i] = 0;
+					perm[0] = perm[i];
+					perm[i] = 0;
 				}
 				break;
 			}
@@ -105,22 +103,20 @@ bool nextsum(vector<unsigned int> &coeffs, const unsigned int n, const unsigned 
 	return true;
 }
 
-//Return the ways to sum to n with k elements, in the order corresponding to the given monomial order
 void kSumTon(vector<vector<unsigned int> >& list, const unsigned int n, const unsigned int k, const unsigned int order)
 {
-	vector<unsigned int> coeffs;
-	coeffs.push_back(n);
+	vector<unsigned int> perm;
+	perm.push_back(n);
 	for (unsigned int i = 1; i < k; i++)
 	{
-		coeffs.push_back(0);
+		perm.push_back(0);
 	}
 	do
 	{
-		list.push_back(coeffs);
-	} while (nextsum(coeffs, n, order));
+		list.push_back(perm);
+	} while (nextperm(perm, n, order));
 }
 
-//Change monomials to properly reflect different weights of the exponents
 bool applyWeights(const vector<unsigned int> &perm, vector<unsigned int> &wperm, const vector<int> &weights)
 {
 	wperm.clear();
@@ -136,27 +132,26 @@ bool applyWeights(const vector<unsigned int> &perm, vector<unsigned int> &wperm,
 	return true;
 }
 
-//Return the ways to sum to n with k elements, with the given weights
 void kSumTon(vector<vector<unsigned int> >& list, const unsigned int n, const unsigned int k, const unsigned int order, const vector<int> &weights, vector<unsigned int> &monomOffset)
 {
 	monomOffset = vector<unsigned int>(k-1,numeric_limits<unsigned int>::max());
 	unsigned int start = list.size();
 
-	vector<unsigned int> coeffs;
+	vector<unsigned int> perm;
 	unsigned int s = 0;
-	coeffs.push_back(n);
+	perm.push_back(n);
 	for (unsigned int i = 1; i < k; i++)
 	{
-		coeffs.push_back(0);
+		perm.push_back(0);
 	}
 	do
 	{
-		vector<unsigned int> wcoeffs;
-		if(applyWeights(coeffs,wcoeffs,weights))
+		vector<unsigned int> wperm;
+		if(applyWeights(perm,wperm,weights))
 		{
 			for(; s < k-1; s++)
 			{
-				if(coeffs[s] == 0)
+				if(perm[s] == 0)
 				{
 					monomOffset[s] = list.size()-start;
 					start = list.size();
@@ -165,12 +160,11 @@ void kSumTon(vector<vector<unsigned int> >& list, const unsigned int n, const un
 					break;
 			}
 
-			list.push_back(wcoeffs);
+			list.push_back(wperm);
 		}
-	} while ( nextsum(coeffs, n, order));
+	} while ( nextperm(perm, n, order));
 }
 
-//Return all k element subsets of the set with n elements
 void subsets(vector<vector<unsigned int> >& list, const unsigned int n, const unsigned int k, const unsigned int order)
 {
 	vector<vector<unsigned int> > list2;
@@ -186,7 +180,6 @@ void subsets(vector<vector<unsigned int> >& list, const unsigned int n, const un
 	}
 }
 
-//List all permutations of n elements
 void permutations(vector<vector<unsigned int> > &list, const unsigned int n)
 {
 	vector<unsigned int> perm;
@@ -201,7 +194,6 @@ void permutations(vector<vector<unsigned int> > &list, const unsigned int n)
 	}
 }
 
-//Return the parity of a given permutation
 int parity(const vector<unsigned int> &permutation)
 {
 	vector<bool> visit(permutation.size(),false);
@@ -224,7 +216,7 @@ int parity(const vector<unsigned int> &permutation)
 	}
 }
 
-//Return a  list of all permutations of n elements together with their parities
+
 void permutationsandparities(vector<vector<unsigned int> > &list, const unsigned int n, vector<int> &paritylist)
 {
 	list.clear();

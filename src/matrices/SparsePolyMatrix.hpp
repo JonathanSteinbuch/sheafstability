@@ -4,14 +4,14 @@
 //============================================================================
 
 
-#ifndef SRC_SPARSEPOLYMATRIX_HPP_
-#define SRC_SPARSEPOLYMATRIX_HPP_
+#ifndef SRC_MATRICES_SPARSEPOLYMATRIX_HPP_
+#define SRC_MATRICES_SPARSEPOLYMATRIX_HPP_
 
 #include <iomanip>
 #include <vector>
 
+#include "../ring/Poly.hpp"
 #include "DensePolyMatrix.hpp"
-#include "Poly.hpp"
 #include "SparseScalarMatrix.hpp"
 
 
@@ -29,19 +29,18 @@ using spPRow = boost::container::flat_map<unsigned int, Poly<_Scalar> >;
 
 using spPCol = boost::container::flat_set<unsigned int>;
 
-//Implements a sparsely represented matrix with entries in the given Ring.
 template <typename _Scalar>
 class SparsePolyMatrix{
-	PolyRing<_Scalar>* Ring; //base ring
+	PolyRing<_Scalar>* Ring;
 
-	vector <int> indegrees; //Twists of the input
-	vector <int> outdegrees; //Twists of the output
+	vector <int> indegrees;
+	vector <int> outdegrees;
 
-	vector <string> inlabels; //Labels for the input
-	vector <string> outlabels; //Labels for the output
+	vector <string> inlabels;
+	vector <string> outlabels;
 
-	vector<spPRow<_Scalar> > rows; //The rows as maps, here the values are stored.
-	vector<spPCol > cols; //the columns, in each column only the set of rows which have nonzero entries for that column are stored.
+	vector<spPRow<_Scalar> > rows;
+	vector<spPCol > cols;
 
 	bool computeDegrees(const vector <int> &outdegs);
 
@@ -76,7 +75,6 @@ public:
 	SparsePolyMatrix<_Scalar> operator*(const SparsePolyMatrix<_Scalar>& rhs) const;
 
 	SparsePolyMatrix<_Scalar> kernel(unsigned int degreeOfInterest, bool homogeneous = true, const program_options & opt = noOptions);
-
 //Getters and Setters:
 	void setLabels(const vector<string> &inlabels,const vector<string> &outlabels) {
 		this->inlabels = inlabels;
@@ -118,12 +116,12 @@ public:
 	friend std::ostream &operator<<(std::ostream &os, SparsePolyMatrix<Scalar> const &m);
 
 	void printForMacaulay2(std::ostream &os);
+	void printForLatex(std::ostream &os);
 
 
 
-	friend class DensePolyMatrix<_Scalar>;
 };
 
 
 
-#endif /* SRC_SPARSEPOLYMATRIX_HPP_ */
+#endif /* SRC_MATRICES_SPARSEPOLYMATRIX_HPP_ */

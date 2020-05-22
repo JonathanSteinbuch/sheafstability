@@ -4,15 +4,14 @@
 //============================================================================
 
 
-#ifndef SRC_DENSEPOLYMATRIX_HPP_
-#define SRC_DENSEPOLYMATRIX_HPP_
+#ifndef SRC_MATRICES_DENSEPOLYMATRIX_HPP_
+#define SRC_MATRICES_DENSEPOLYMATRIX_HPP_
 
 #include <iomanip>
 #include <vector>
 
-#include "Poly.hpp"
+#include "../ring/Poly.hpp"
 #include "SparseScalarMatrix.hpp"
-#include "SparsePolyMatrix.hpp"
 
 const unsigned int ERROR = UINT_MAX;
 
@@ -24,20 +23,19 @@ class SparsePolyMatrix;
 
 using namespace std;
 
-//Implements a densely represented matrix with entries in the given Ring.
 template <typename _Scalar>
 class DensePolyMatrix{
-	PolyRing<_Scalar>* Ring; //base ring
+	PolyRing<_Scalar>* Ring;
 
-	unsigned int rows, cols; //dimensions of the matrix
+	unsigned int rows, cols;
 
-	vector <int> indegrees; //Twists of the input
-	vector <int> outdegrees; //Twists of the output
+	vector <int> indegrees;
+	vector <int> outdegrees;
 
-	vector <string> inlabels; //Labels for the input
-	vector <string> outlabels; //Labels for the output
+	vector <string> inlabels;
+	vector <string> outlabels;
 
-	vector<vector<Poly<_Scalar> > > entries; //The main matrix data
+	vector<vector<Poly<_Scalar> > > entries;
 
 	bool computeDegrees(const vector <int> &outdegs);
 
@@ -76,8 +74,6 @@ public:
 	}
 
 	DensePolyMatrix(PolyRing<_Scalar>* baseRing,const SparseScalarMatrix<_Scalar>& inmatrix,const unsigned int sx,const unsigned int sy, const vector <int> &outdegs, const int degree, bool homogeneous = true);
-
-	DensePolyMatrix(const SparsePolyMatrix<_Scalar> &old);
 
 //Matrix operations:
 	SparseScalarMatrix<_Scalar> degreeMatrix(const int degree,bool homogeneous = true);
@@ -159,6 +155,7 @@ public:
 	void printAsOperator(std::ostream &os);
 
 	void printForMacaulay2(std::ostream &os);
+	void printForLatex(std::ostream &os);
 
 
 	friend class SparsePolyMatrix<_Scalar>;
@@ -166,4 +163,4 @@ public:
 
 
 
-#endif /* SRC_DENSEPOLYMATRIX_HPP_ */
+#endif /* SRC_MATRICES_DENSEPOLYMATRIX_HPP_ */

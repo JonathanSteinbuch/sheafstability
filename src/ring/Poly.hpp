@@ -4,29 +4,30 @@
 //============================================================================
 
 
-#ifndef SRC_POLY_HPP_
-#define SRC_POLY_HPP_
+#ifndef SRC_RING_POLY_HPP_
+#define SRC_RING_POLY_HPP_
 
 #include <gmpxx.h>
 
 template<typename _Scalar>
 class PolyRing;
 
-#include "SparseScalarMatrix.hpp"
+#include "../matrices/SparseScalarMatrix.hpp"
 #include "PolyRing.hpp"
-#include "Helpers.hpp"
+#include "../helpers/Helpers.hpp"
 
 template<typename Scalar>
 using polyContainer = map<mBmonomial, Scalar>;
 
-//This class implements a polynomial
 template<typename _Scalar>
 class Poly
 {
 private:
-	PolyRing<_Scalar>* Ring; //The ring of which the polynomial is an element
+	PolyRing<_Scalar>* Ring;
 
-	polyContainer<_Scalar> poly; //The actual polynomial data
+	polyContainer<_Scalar> poly;
+
+
 
 	Poly(PolyRing<_Scalar>* baseRing, string::const_iterator& it, const string& input, bool bracket);
 
@@ -154,7 +155,6 @@ public:
 		return Ring;
 	}
 
-	//Ring change. Only possible if base rings coincide.
 	bool changeRing(PolyRing<_Scalar>* newRing)
 	{
 		if(newRing->getBaseRing() == Ring->getBaseRing())
@@ -167,4 +167,4 @@ public:
 	}
 };
 
-#endif /* SRC_POLY_HPP_ */
+#endif /* SRC_RING_POLY_HPP_ */

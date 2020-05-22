@@ -11,7 +11,9 @@ cd sheafstability
 
 To compile the program you need to have the GNU Multiprecision Library (https://gmplib.org/) and the Boost Program Options (https://www.boost.org/) installed.
 
+
 To compile just run the command 
+
 ```
 make
 ```
@@ -48,14 +50,14 @@ With this we can directly get Sym^q(Ext^s(F)) of a kernel sheaf F.
 To use it provide an input file of the following form:
 ```
 powers
-characteristic: 3
+characteristic: 0
 variables: "x", "y", "z"
 relations: z^5+x^5+y^5
 matrix: {{x^4+y^2z^2,y^4,z^4,x^7}}
-symmetricpower: 2
+spower: 2
 exteriorpower: 1
 ```
-In this case we compute Sym^2(Ext^1(Syz(x^4+y^2z^2,y^4,z^4,x^7))) over \F_3[x,y,z]/z^5+y^5+x^5. The output will be 
+In this case we compute Sym^2(Ext^1(Syz(x^4+y^2z^2,y^4,z^4,x^7))) over \Q[x,y,z]/z^5+y^5+x^5. The output will be 
 ```
     |         8       8       8          11   8  8          11   8          11        14 
 ----| --------- ------- ------- ----------- --- -- ----------- --- ----------- --------- 
@@ -72,12 +74,12 @@ With this we can directly get global sections of Sym^q(Ext^s(F))(t) of a kernel 
 
 To use it provide an input file of the following form:
 ```
-kernel
+powers
 characteristic: 0
 variables: "x", "y", "z"
 relations: z^5+x^5+y^5
 matrix: {{x^4+y^2z^2,y^4,z^4,x^7}}
-symmetricpower: 2
+spower: 2
 exteriorpower: 1
 twist: 50
 ```

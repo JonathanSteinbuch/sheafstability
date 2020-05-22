@@ -4,8 +4,8 @@
 //============================================================================
 
 
-#ifndef SRC_HELPERS_HPP_
-#define SRC_HELPERS_HPP_
+#ifndef SRC_HELPERS_HELPERS_HPP_
+#define SRC_HELPERS_HELPERS_HPP_
 
 
 #include <iostream>
@@ -19,7 +19,6 @@
 
 using namespace std;
 
-//Struct containg all command line options
 struct program_options
 {
 	string config_file;
@@ -29,14 +28,15 @@ struct program_options
 	bool exteriorPowers;
 	bool stopIfUnstable;
 	bool linearPowerProgresison;
-	bool useTarjan;
+	bool preAnalyze;
 	bool outputM2;
+	bool outputLatex;
 	bool forceQ;
 	bool computeFullKernel;
 	bool longFormPolynomials;
 };
 
-const program_options noOptions = {"","","",1,false,false,false,false,false,false,false};
+const program_options noOptions = {"","","",1,false,false,false,false,false,false,false,false};
 
 int dotproduct(const vector<unsigned int> &u, const vector <int> &v);
 
@@ -47,7 +47,7 @@ int sum(const vector<int> &u);
 int max(const vector<int> &input);
 
 
-//Monomial class, mainly to make clear that it is not only an uint which is the ID that stands for it.
+
 class mBmonomial{
 private:
 	unsigned int id;
@@ -101,7 +101,6 @@ public:
 	}
 };
 
-//Lookup table, will automatically compute itself to the necessary degree
 class lutable
 {
 	const unsigned int vars;
@@ -203,16 +202,14 @@ public:
 
 private:
 
-	vector<vector<unsigned int> > _monomOffset;//Size: [degree + 1][vars]; //Offset for computing the ID of a monomial given by exponents.
-	vector<unsigned int > _monN;//Size: [degree + 2];//monN[N] contains the number of monomials up to degree N-1
-	vector<vector<unsigned int> > _choose;//Size: [degree+1][degree+1]; //choose[n][k] contains n+k choose k, i.e. the number of monomials of degree n in k+1 variables
+	vector<vector<unsigned int> > _monomOffset;//[degree + 1][vars];
+	vector<unsigned int > _monN;//[degree + 2];//monN[N] contains the number of monomials up to degree N-1
+	vector<vector<unsigned int> > _choose;//[degree+1][degree+1]; //choose[n][k] contains n+k choose k, i.e. the number of monomials of degree n in k+1 variables
 };
 
-//monomial orders
 const unsigned int deglex = 0;
 const unsigned int degrevlex = 1;
-
-bool nextsum(vector<unsigned int> &coeffs, const unsigned int n, const unsigned int order);
+bool nextperm(vector<unsigned int> &perm, const unsigned int n, const unsigned int order);
 
 void kSumTon(vector<vector<unsigned int> >& list, const unsigned int n, const unsigned int k, const unsigned int order);
 bool applyWeights(const vector<unsigned int> &perm, vector<unsigned int> &wperm, const vector<int> &weights);

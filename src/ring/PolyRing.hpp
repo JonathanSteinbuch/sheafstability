@@ -1,11 +1,11 @@
 //============================================================================
-// Name        : PolyRing.hpp
+// Name        : PolyRing.cpp
 // Author      : Jonathan Steinbuch
 //============================================================================
 
 
-#ifndef SRC_POLYRING_HPP_
-#define SRC_POLYRING_HPP_
+#ifndef SRC_RING_POLYRING_HPP_
+#define SRC_RING_POLYRING_HPP_
 
 #include <iostream>
 #include <vector>
@@ -15,8 +15,8 @@
 
 #include <gmpxx.h>
 
-#include "DensePolyMatrix.hpp"
-#include "Helpers.hpp"
+#include "../helpers/Helpers.hpp"
+#include "../matrices/DensePolyMatrix.hpp"
 #include "Poly.hpp"
 
 
@@ -26,35 +26,32 @@ using namespace std;
 template <typename _Scalar>
 class Poly;
 
-//This is a struct to store all data relating monomial IDs to the actual monomials and their degrees
 struct monlookups{
-
 	lutable lu;
-	unsigned int maxdegree; //maximal degree to which we computed. Will change dynamically
-	unsigned int vars; //number of variables
-	vector<string> printvar; //print strings for the variables
-	const unsigned int order; //deglex = 0 or degrevlex = 1;
-	vector<vector<unsigned int> > list; //exponent-list for each monomial
-	unsigned int realvars; //in the case of helper variables to compute homogeneously for non-homogeneous polynomials
-	vector<int> weights; //weights of the variables; standard is 1
-	vector<vector <unsigned int> > monomOffset; //internal offsets to compute the monomial ID from its exponent-list
+	unsigned int maxdegree;
+	unsigned int vars;
+	vector<string> printvar;
+	const unsigned int order;
+	vector<vector<unsigned int> > list;
+	unsigned int realvars;
+	vector<int> weights;
+	vector<vector <unsigned int> > monomOffset;
 	vector<unsigned int> monN;//monN[N] contains the number of monomials up to degree N-1
 
 	monlookups(const unsigned int vars, const vector<string> (&printvar), const unsigned int order, int realvars = -1, const vector<int> &weights = {}, bool invert=false);
 };
 
-//This class implements (a quotient of) a polynomial ring.
 template <typename _Scalar>
 class PolyRing {
 
-	PolyRing* BaseRing; //Base Ring. Make sure that the actual base ring has itself as base ring.
+	PolyRing* BaseRing;
 
-	monlookups* mons; //The monomial ID structure.
+	monlookups* mons;
 
-	vector<Poly<_Scalar> > gB; //The Gröbner Basis of the defining ideal
-	vector<Poly<_Scalar> > lookup; //Lookup table for each monomial after applying reduction by the Gröbner Basis.
-	vector<mBmonomial> basis; //Monomial Basis with respect to the Gröbner Basis
-	vector<unsigned int> basisdegstart; //Where in the Basisvector each degree starts.
+	vector<Poly<_Scalar> > gB;
+	vector<Poly<_Scalar> > lookup;
+	vector<mBmonomial> basis;
+	vector<unsigned int> basisdegstart;
 
 	void reCalcRelations(const unsigned int minDegree);
 
