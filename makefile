@@ -1,6 +1,4 @@
-################################################################################
-# Automatically-generated file. Do not edit!
-################################################################################
+
 
 .DEFAULT_GOAL := all
 
@@ -8,15 +6,13 @@
 
 RM := rm -rf
 
-# All of the sources participating in the build are defined here
--include sources.mk
--include src/ring/subdir.mk
--include src/matrices/subdir.mk
--include src/jobs/subdir.mk
--include src/helpers/subdir.mk
--include src/subdir.mk
--include subdir.mk
--include objects.mk
+-include make/sources.mk
+-include make/src/ring/subdir.mk
+-include make/src/matrices/subdir.mk
+-include make/src/jobs/subdir.mk
+-include make/src/helpers/subdir.mk
+-include make/src/subdir.mk
+-include make/objects.mk
 
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -42,12 +38,9 @@ endif
 
 -include ./makefile.defs
 
-# Add inputs and outputs from these tool invocations to the build variables 
 
-# All Target
 all: stability
 
-# Tool invocations
 stability: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
@@ -55,7 +48,6 @@ stability: $(OBJS) $(USER_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-# Other Targets
 clean:
 	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) stability
 	-@echo ' '
