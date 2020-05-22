@@ -44,7 +44,7 @@ class DensePolyMatrix{
 
 public:
 //Constructors:
-	DensePolyMatrix() {}
+	DensePolyMatrix():Ring(NULL),rows(0),cols(0) {}
 
 	DensePolyMatrix(PolyRing<_Scalar>* baseRing,const vector< vector <Poly<_Scalar> > > &entries);
 

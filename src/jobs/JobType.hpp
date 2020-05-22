@@ -81,8 +81,9 @@ template <typename Scalar>
 class JobType
 {
 public:
+	virtual ~JobType(){};
 
-	virtual bool doJob(PolyRing<Scalar>  &Ring, DensePolyMatrix<Scalar> &M, const JobOptionsType &jobOptions, const program_options &opt = noOptions) {};
+	virtual bool doJob(PolyRing<Scalar>  &Ring, DensePolyMatrix<Scalar> &M, const JobOptionsType &jobOptions, const program_options &opt = noOptions) {return false;};
 };
 
 #endif /* SRC_JOB_HPP_ */

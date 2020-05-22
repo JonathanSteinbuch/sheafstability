@@ -146,7 +146,7 @@ bool ReaderAndCaller::readandexecutefile()
 
 	else
 	{
-		cerr << "Unable to open input file";
+		cerr << "Unable to open input file" << endl;
 		return false;
 	}
 }

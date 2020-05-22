@@ -47,7 +47,7 @@ class SparsePolyMatrix{
 	void computeCols(unsigned int numcols);
 public:
 //Constructors:
-	SparsePolyMatrix() {}
+	SparsePolyMatrix(): Ring(NULL) {}
 
 	SparsePolyMatrix(PolyRing<_Scalar>* baseRing,const vector<spPRow<_Scalar> > &rows,const vector<spPCol > &cols,const vector <int> &outdegs,const vector <int> &indegs);
 

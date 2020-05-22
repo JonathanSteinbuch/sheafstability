@@ -54,7 +54,7 @@ PolyRing<_Scalar>::PolyRing(const unsigned int vars, const vector<string> (&prin
 }
 
 template<typename _Scalar>
-PolyRing<_Scalar>::PolyRing(PolyRing* BaseRing, const vector<Poly<_Scalar> > &relations) : BaseRing(BaseRing){
+PolyRing<_Scalar>::PolyRing(PolyRing* BaseRing, const vector<Poly<_Scalar> > &relations) : BaseRing(BaseRing),opt(BaseRing->opt){
 	mons = BaseRing->mons;
 
 	setRelations(relations);
@@ -63,7 +63,7 @@ PolyRing<_Scalar>::PolyRing(PolyRing* BaseRing, const vector<Poly<_Scalar> > &re
 
 template<typename _Scalar>
 PolyRing<_Scalar>::PolyRing(PolyRing* BaseRing, const vector<string> &relations) :
-		BaseRing(BaseRing)
+		BaseRing(BaseRing),opt(BaseRing->opt)
 {
 	mons = BaseRing->mons;
 
