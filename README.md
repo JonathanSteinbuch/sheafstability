@@ -1,6 +1,6 @@
 # Sheaf stability
 
-This program computes whether a given sheaf is semistable following the algorithm laid out in the paper (Computing stability of sheafs - Holger Brenner and Jonathan Steinbuch (TODO link).
+This program computes whether a given sheaf is semistable following the algorithm laid out in the paper (Computing stability of sheafs - Holger Brenner and Jonathan Steinbuch, In preparation).
 
 # Usage
 Get the source code by cloning this git repository with the commands
