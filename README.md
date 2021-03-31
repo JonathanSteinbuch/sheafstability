@@ -74,7 +74,7 @@ With this we can directly get global sections of Sym^q(Ext^s(F))(t) of a kernel 
 
 To use it provide an input file of the following form:
 ```
-powers
+kernel
 characteristic: 0
 variables: "x", "y", "z"
 relations: z^5+x^5+y^5
